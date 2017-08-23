@@ -63,7 +63,7 @@ Whatever implementation choice you make, see how the Jenkins test harnesses can 
 
 * `SimpleBuildStep` (builders, publishers)
 * `SimpleBuildWrapper` (wrappers)
-* newer methods in `SCM`, `Trigger`, etc.
+* some signatures of `SCM`, `Trigger`, `JobProperty`, etc.
 * various core “baselines” needed, typically 1.580.x+
     * good time to use the 2.x Maven parent POM
 
@@ -85,6 +85,13 @@ Whatever implementation choice you make, see how the Jenkins test harnesses can 
 * package nested config into `Describable`s with their own `@Symbol`s
 * use Credentials API to manage secrets
 * otherwise the usual Jelly UI, all interoperable with freestyle
+
+## Anticipating “CD-as-code”
+
+* treat parameters as constants (scripts can interpolate variables as needed)
+* avoid mandatory global configuration
+    * each team can operate autonomously using just `Jenkinsfile`
+    * shared config can come from folder properties, libraries, `load`ed data…
 
 # Custom Steps
 
@@ -161,3 +168,4 @@ Whatever implementation choice you make, see how the Jenkins test harnesses can 
 
 * no need to write a plugin at all! share on GitHub
 * if “trusted”, can access Jenkins internal APIs, or `@Grab` Java libraries
+* can be opinionated & complement plugin-provided steps
