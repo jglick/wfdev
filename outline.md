@@ -93,6 +93,10 @@ Whatever implementation choice you make, see how the Jenkins test harnesses can 
     * each team can operate autonomously using just `Jenkinsfile`
     * shared config can come from folder properties, libraries, `load`ed data…
 
+## Demo: `SimpleBuildStep` conversion
+
+[Full patch](https://github.com/jglick/wfdev/compare/pipeline)
+
 # Custom Steps
 
 [Writing Pipeline steps](https://github.com/jenkinsci/workflow-step-api-plugin/blob/master/README.md)
