@@ -1,23 +1,26 @@
 package demo;
 import hudson.Launcher;
 import hudson.Extension;
-import hudson.model.AbstractBuild;
+import hudson.FilePath;
 import hudson.util.FormValidation;
 import hudson.model.AbstractProject;
-import hudson.model.BuildListener;
+import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.tasks.Builder;
 import hudson.tasks.BuildStepDescriptor;
-import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.QueryParameter;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
+import jenkins.tasks.SimpleBuildStep;
+import org.jenkinsci.Symbol;
+import org.kohsuke.stapler.DataBoundSetter;
 
-public class HelloWorldBuilder extends Builder {
+public class HelloWorldBuilder extends Builder implements SimpleBuildStep {
 
     private final String name;
+    private boolean useFrench;
 
     @DataBoundConstructor
     public HelloWorldBuilder(String name) {
@@ -28,31 +31,37 @@ public class HelloWorldBuilder extends Builder {
         return name;
     }
 
+    public boolean isUseFrench() {
+        return useFrench;
+    }
+
+    @DataBoundSetter
+    public void setUseFrench(boolean useFrench) {
+        this.useFrench = useFrench;
+    }
+
     @Override
-    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
-        if (((DescriptorImpl) getDescriptor()).getUseFrench()) {
+    public void perform(Run<?, ?> run, FilePath workspace, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
+        if (useFrench) {
             listener.getLogger().println("Bonjour, " + name + "!");
         } else {
             listener.getLogger().println("Hello, " + name + "!");
         }
-        return true;
     }
 
+    @Symbol("greet")
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
 
-        private boolean useFrench;
-
-        public DescriptorImpl() {
-            load();
-        }
-
-        public FormValidation doCheckName(@QueryParameter String value)
+        public FormValidation doCheckName(@QueryParameter String value, @QueryParameter boolean useFrench)
                 throws IOException, ServletException {
             if (value.length() == 0)
                 return FormValidation.error("Please set a name");
             if (value.length() < 4)
                 return FormValidation.warning("Isn't the name too short?");
+            if (!useFrench && value.matches(".*[éáàç].*")) {
+                return FormValidation.warning("Are you actually French?");
+            }
             return FormValidation.ok();
         }
 
@@ -64,17 +73,6 @@ public class HelloWorldBuilder extends Builder {
         @Override
         public String getDisplayName() {
             return "Say hello world";
-        }
-
-        @Override
-        public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
-            useFrench = formData.getBoolean("useFrench");
-            save();
-            return super.configure(req, formData);
-        }
-
-        public boolean getUseFrench() {
-            return useFrench;
         }
 
     }
