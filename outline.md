@@ -26,6 +26,9 @@ Whatever implementation choice you make, see how the Jenkins test harnesses can 
     * send mail only if the build failed → `post {failure {…}}`
     * expand build environment variables in this URL → `"http://server/${var}/"`
     * retry up to three times → `retry(3) {…}`
+    * anything complicated → helper functions, libraries
+* metadata about what steps a _job_ runs is not reliably available
+    * only what steps a _build_ did run in the past
 
 ## Free execution order
 
@@ -49,4 +52,112 @@ Whatever implementation choice you make, see how the Jenkins test harnesses can 
 * Pipeline builds
     * use as many executors as there are `node {…}` blocks active
     * can run across restarts
+        * any state must be safely serializable to disk
     * might await user input, external events, etc. indefinitely
+
+# Minimum Compliance
+
+[Plugin Developer Guide](https://github.com/jenkinsci/pipeline-plugin/blob/master/DEVGUIDE.md)
+
+## Jenkins core APIs friendly to Pipeline
+
+* `SimpleBuildStep` (builders, publishers)
+* `SimpleBuildWrapper` (wrappers)
+* newer methods in `SCM`, `Trigger`, etc.
+* various core “baselines” needed, typically 1.580.x+
+    * good time to use the 2.x Maven parent POM
+
+## Removing assumptions
+
+* `AbstractProject` → `Job` (& some specialized interfaces)
+* `AbstractBuild` → `Run` (ditto)
+* could run on multiple nodes in one build
+* could be multiple SCMs checked out in one build
+* do not know list of build steps ahead of time
+* build as a whole might succeed even if this step failed
+* different variables might be in scope at different points in a build
+* `SimpleBuildWrapper`: state must be `Serializable`
+
+## DSL binding & **Pipeline Syntax** integration
+
+* add a `@Symbol`
+* use `@DataBoundSetter` in addition to `@DataBoundConstructor` for defaultable fields
+* package nested config into `Describable`s with their own `@Symbol`s
+* use Credentials API to manage secrets
+* otherwise the usual Jelly UI, all interoperable with freestyle
+
+# Custom Steps
+
+[Writing Pipeline steps](https://github.com/jenkinsci/workflow-step-api-plugin/blob/master/README.md)
+
+## Why a custom step?
+
+* use Pipeline-specific APIs (e.g., decorate “flow graph”)
+* asynchronous (e.g., `input`)
+* wrappers running body >1 times (e.g., `retry`)
+* limitations in core interfaces (e.g., environment variable handling)
+* freestyle configuration very inappropriate for Pipeline
+
+## Pieces you need
+
+* `Step`: the _definition_ of what to run
+    * mostly interchangeable with one Groovy function call
+* `StepDescriptor`: the _kind_ of step and its metadata (singleton)
+* `StepExecution`: what is happening at runtime
+    * consider `transient`, `onResume`, `serialVersionUID`, `readResolve`
+    * convenience forms for “quick” steps
+* `config.jelly` UI, `help-something.html`, `FormValidation doFillSomethingItems`, etc.
+    * allows **Pipeline Syntax** to offer “live” examples
+
+## Dealing with asynchrony
+
+* `start` method happens in “CPS VM” thread
+    * _must be quick_: this is coöperative multitasking
+* use background threads for anything else
+    * notify the engine when step completes or fails
+    * engine notifies you when step is interrupted
+
+## Fun with block-scoped steps
+
+* run an body `{…}` 0, 1, or more times
+    * asynchronous notification when body ends, may return same result
+* set environment variables for nested steps
+* adjust console output
+    * though colors or hyperlinks not supported in Blue Ocean
+* define alternate workspaces or pass down any other “context”
+
+# Testing
+
+## Interactive tests
+
+* `mvn hpi:run`
+* try copying **Pipeline Syntax**, pasting into `Jenkinsfile`, & running
+
+## Automated tests
+
+* use `JenkinsRule` to set up temporary environment
+* test deps on `workflow-job`, `workflow-cps`, `workflow-basic-steps`, `workflow-durable-task-step`
+* create a `WorkflowJob` w/ a `CpsFlowDefinition`, try running builds
+* `StepConfigTester` to check basics of databinding
+  * `SnippetizerTester` for advanced checks
+
+# DSLs & Libraries
+
+## Defining global variables
+
+* `GlobalVariable` extension point: predefine symbol in every build
+* can have methods & JavaBeans-style properties
+    * not like steps: no environment, no asynchronous mode
+* may be stateful
+* currently requires `workflow-cps` dep; use sparingly
+
+## DSL extensions
+
+* some `GlobalVariable`s load special DSLs written in Groovy
+* generally incompatible with Declarative Pipeline
+* avoid
+
+## Pipeline libraries
+
+* no need to write a plugin at all! share on GitHub
+* if “trusted”, can access Jenkins internal APIs, or `@Grab` Java libraries
