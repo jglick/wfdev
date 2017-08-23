@@ -30,17 +30,12 @@ public class HelloWorldBuilder extends Builder {
 
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
-        if (getDescriptor().getUseFrench()) {
+        if (((DescriptorImpl) getDescriptor()).getUseFrench()) {
             listener.getLogger().println("Bonjour, " + name + "!");
         } else {
             listener.getLogger().println("Hello, " + name + "!");
         }
         return true;
-    }
-
-    @Override
-    public DescriptorImpl getDescriptor() {
-        return (DescriptorImpl)super.getDescriptor();
     }
 
     @Extension
@@ -61,10 +56,12 @@ public class HelloWorldBuilder extends Builder {
             return FormValidation.ok();
         }
 
+        @Override
         public boolean isApplicable(Class<? extends AbstractProject> aClass) {
             return true;
         }
 
+        @Override
         public String getDisplayName() {
             return "Say hello world";
         }
@@ -73,12 +70,13 @@ public class HelloWorldBuilder extends Builder {
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
             useFrench = formData.getBoolean("useFrench");
             save();
-            return super.configure(req,formData);
+            return super.configure(req, formData);
         }
 
         public boolean getUseFrench() {
             return useFrench;
         }
-    }
-}
 
+    }
+
+}
