@@ -93,7 +93,22 @@ Whatever implementation choice you make, see how the Jenkins test harnesses can 
     * each team can operate autonomously using just `Jenkinsfile`
     * shared config can come from folder properties, libraries, `load`ed data…
 
-## Demo: `SimpleBuildStep` conversion
+# Testing
+
+## Interactive tests
+
+* `mvn hpi:run`
+* try copying **Pipeline Syntax**, pasting into `Jenkinsfile`, & running
+
+## Automated tests
+
+* use `JenkinsRule` to set up temporary environment
+* test deps on `workflow-job`, `workflow-cps`, `workflow-basic-steps`, `workflow-durable-task-step`
+* create a `WorkflowJob` w/ a `CpsFlowDefinition`, try running builds
+* `StepConfigTester` to check basics of databinding
+  * `SnippetizerTester` for advanced checks
+
+# Demo: `SimpleBuildStep` conversion
 
 [Full patch](https://github.com/jglick/wfdev/compare/pipeline)
 
@@ -137,20 +152,9 @@ Whatever implementation choice you make, see how the Jenkins test harnesses can 
     * though colors or hyperlinks not supported in Blue Ocean
 * define alternate workspaces or pass down any other “context”
 
-# Testing
+## Demo: block-scoped step
 
-## Interactive tests
-
-* `mvn hpi:run`
-* try copying **Pipeline Syntax**, pasting into `Jenkinsfile`, & running
-
-## Automated tests
-
-* use `JenkinsRule` to set up temporary environment
-* test deps on `workflow-job`, `workflow-cps`, `workflow-basic-steps`, `workflow-durable-task-step`
-* create a `WorkflowJob` w/ a `CpsFlowDefinition`, try running builds
-* `StepConfigTester` to check basics of databinding
-  * `SnippetizerTester` for advanced checks
+**TODO** develop
 
 # DSLs & Libraries
 
