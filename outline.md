@@ -16,19 +16,25 @@ You will also get an overview of plugin features which do not _need_ to be porte
 
 Whatever implementation choice you make, see how the Jenkins test harnesses can be used to prove smooth operation of the result.
 
-# How Pipeline differs
+## Why Support Pipeline?
+
+* the centerpiece of Jenkins 2.0, needed for ”CI/CD as code”
+* plugin integrations can be leveraged for much richer workflow options
+* but a conceptual shift, needs a little extra effort
+
+# How Pipeline Differs
 
 ## Your workflow as code, not UI
 
-* traditional Jenkins “freestyle” projects are configured via UI
-* but a Pipeline `Jenkinsfile` is a script, written in a Groovy DSL
+* traditional Jenkins “freestyle” projects are _static_: configured via UI
+* but a Pipeline `Jenkinsfile` is a _dynamic_ script, written in a Groovy DSL
 * so plugin features that perform logic are unnecessary
     * send mail only if the build failed → `post {failure {…}}`
     * expand build environment variables in this URL → `"http://server/${var}/"`
     * retry up to three times → `retry(3) {…}`
     * anything complicated → helper functions, libraries
 * metadata about what steps a _job_ runs is not reliably available
-    * only what steps a _build_ did run in the past
+    * only what steps a _build_ did run in the past (incl. actual args)
 
 ## Free execution order
 
