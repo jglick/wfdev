@@ -113,6 +113,7 @@ Whatever implementation choice you make, see how the Jenkins test harnesses can 
 * create a `WorkflowJob` w/ a `CpsFlowDefinition`, try running builds
 * `StepConfigTester` to check basics of databinding
   * `SnippetizerTester` for advanced checks
+* `SemaphoreStep` to simulate `input`, Jenkins restarts, concurrency, &c.
 
 # Demo: `SimpleBuildStep` conversion
 
