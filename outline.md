@@ -22,6 +22,13 @@ Whatever implementation choice you make, see how the Jenkins test harnesses can 
 * plugin integrations can be leveraged for much richer workflow options
 * but a conceptual shift, needs a little extra effort
 
+## Agenda
+
+* overview of special requirements for Pipeline compatibility in plugins
+* how to convert a plugin working in freestyle to work the same in Pipeline
+* developing special support for Pipeline
+* higher-level Groovy syntax
+
 # How Pipeline Differs
 
 ## Your workflow as code, not UI
@@ -160,8 +167,6 @@ Whatever implementation choice you make, see how the Jenkins test harnesses can 
 * define alternate workspaces or pass down any other “context”
 
 ## Demo: block-scoped step
-
-**TODO** develop
 
 # DSLs & Libraries
 
