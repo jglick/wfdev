@@ -40,8 +40,6 @@ Whatever implementation choice you make, see how the Jenkins test harnesses can 
     * expand build environment variables in this URL → `"http://server/${var}/"`
     * retry up to three times → `retry(3) {…}`
     * anything complicated → helper functions, libraries
-* metadata about what steps a _job_ runs is not reliably available
-    * only what steps a _build_ did run in the past (incl. actual args)
 
 ## Free execution order
 
@@ -58,6 +56,8 @@ Whatever implementation choice you make, see how the Jenkins test harnesses can 
     * never, once, or many times
     * in parallel
     * whether or not previous steps failed
+* metadata about what steps a _job_ runs is not reliably available
+    * only what steps a _build_ did run in the past (incl. actual args)
 
 ## Durability & asynchronous activity
 
@@ -104,7 +104,7 @@ Whatever implementation choice you make, see how the Jenkins test harnesses can 
 * treat parameters as constants (scripts can interpolate variables as needed)
 * avoid mandatory global configuration
     * each team can operate autonomously using just `Jenkinsfile`
-    * shared config can come from folder properties, libraries, `load`ed data…
+    * shared config can come from folder properties, libraries, `readFile`, …
 
 # Testing
 
@@ -159,7 +159,7 @@ Whatever implementation choice you make, see how the Jenkins test harnesses can 
 
 ## Fun with block-scoped steps
 
-* run an body `{…}` 0, 1, or more times
+* run a body `{…}` 0, 1, or more times
     * asynchronous notification when body ends, may return same result
 * set environment variables for nested steps
 * adjust console output
@@ -182,7 +182,7 @@ Whatever implementation choice you make, see how the Jenkins test harnesses can 
 
 * some `GlobalVariable`s load special DSLs written in Groovy
 * generally incompatible with Declarative Pipeline
-* avoid
+* _avoid_
 
 ## Pipeline libraries
 
