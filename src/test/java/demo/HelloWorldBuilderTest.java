@@ -24,6 +24,7 @@
 package demo;
 
 import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
+import org.jenkinsci.plugins.workflow.cps.SnippetizerTester;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.steps.CoreStep;
 import org.jenkinsci.plugins.workflow.steps.StepConfigTester;
@@ -53,10 +54,19 @@ public class HelloWorldBuilderTest {
     @Test
     public void ui() throws Exception {
         StepConfigTester t = new StepConfigTester(r);
-        HelloWorldBuilder b = new HelloWorldBuilder("Name");
+        HelloWorldBuilder b = new HelloWorldBuilder("Jesse");
         r.assertEqualDataBoundBeans(new CoreStep(b), t.configRoundTrip(new CoreStep(b)));
         b.setUseFrench(true);
         r.assertEqualDataBoundBeans(new CoreStep(b), t.configRoundTrip(new CoreStep(b)));
+    }
+
+    @Test
+    public void groovy() throws Exception {
+        SnippetizerTester t = new SnippetizerTester(r);
+        HelloWorldBuilder b = new HelloWorldBuilder("Jesse");
+        t.assertRoundTrip(new CoreStep(b), "greet 'Jesse'");
+        b.setUseFrench(true);
+        t.assertRoundTrip(new CoreStep(b), "greet name: 'Jesse', useFrench: true");
     }
 
 }
